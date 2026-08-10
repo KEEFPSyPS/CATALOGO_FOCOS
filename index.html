@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hella Bulb Finder · PWA</title>
+  <!-- PWA manifest & theme -->
+  <link rel="manifest" href="data:application/json,{}" />
+  <meta name="theme-color" content="#0b2b4a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- Firebase SDK (modular v9 compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+  <style>
+    /* ============================================================
+       DESIGN SYSTEM · Hella Bulb Finder
+       Estándares internacionales: variables CSS, tipografía,
+       espaciado 8pt, elevación, estados de foco accesibles.
+       ============================================================ */
+    :root {
+      /* Paleta */
+      --color-primary: #0b2b4a;
+      --color-primary-dark: #081f36;
+      --color-primary-light: #1a4a6e;
+      --color-accent: #f1c40f;
+      --color-accent-dark: #d4a800;
+      --color-surface: #ffffff;
+      --color-surface-alt: #eef3f9;
+      --color-border: #dfe8f2;
+      --color-text: #1d3b5a;
+      --color-text-muted: #7a8b9f;
+      --color-text-faint: #9aa9b9;
+      --color-danger: #b13e3e;
+      --color-success: #1a5d3a;
+      --color-success-bg: #dff0e6;
+
+      /* Tipografía */
+      --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-size-xs: 0.75rem;   /* 12px */
+      --font-size-sm: 0.875rem;  /* 14px */
+      --font-size-md: 1rem;      /* 16px */
+      --font-size-lg: 1.125rem;  /* 18px */
+
+      /* Espaciado (escala 8pt) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+
+      /* Radios */
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+
+      /* Elevación */
+      --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.14);
+      --shadow-primary: 0 6px 12px rgba(11, 43, 74, 0.2);
+
+      /* Transiciones */
+      --transition-fast: 0.15s ease;
+      --transition-base: 0.25s ease;
+
+      /* Z-index */
+      --z-modal: 1000;
+      --z-overlay: 999;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: var(--font-family);
+    }
+
+    body {
+      background: #f4f7fc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: var(--space-4);
+    }
+
+    /* ============================================================
+       APP CARD
+       ============================================================ */
+    .app-card {
+      max-width: 500px;
+      width: 100%;
+      background: var(--color-surface);
+      border-radius: 40px 40px 32px 32px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      padding: var(--space-6) var(--space-5) var(--space-8);
+      transition: var(--transition-base);
+    }
+
+    /* ============================================================
+       HEADER / LOGO
+       ============================================================ */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      margin-bottom: 28px;
+      position: relative;
+      cursor: default;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .logo-placeholder {
+      background: var(--color-primary);
+      border-radius: 60px;
+      padding: 6px 18px 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .logo-icon {
+      background: var(--color-accent);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--color-primary);
+    }
+
+    .logo-text {
+      color: var(--color-surface);
+      font-weight: 600;
+      font-size: var(--font-size-lg);
+      letter-spacing: 0.5px;
+    }
+
+    .logo-text span {
+      font-weight: 300;
+      opacity: 0.8;
+    }
+
+    /* ============================================================
+       FILTROS
+       ============================================================ */
+    .filter-section {
+      background: var(--color-surface-alt);
+      border-radius: 28px;
+      padding: var(--space-5) var(--space-4);
+      margin-bottom: 28px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-row label {
+      flex: 1 0 100%;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      letter-spacing: 0.3px;
+      margin-bottom: 2px;
+    }
+
+    .filter-row input {
+      flex: 1;
+      min-width: 80px;
+      padding: 12px 14px;
+      border: none;
+      border-radius: var(--radius-pill);
+      background: var(--color-surface);
+      font-size: 15px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-fast);
+      outline: 1px solid transparent;
+    }
+
+    .filter-row input:focus {
+      outline: 2px solid var(--color-primary-light);
+      box-shadow: 0 4px 10px rgba(29, 111, 156, 0.15);
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      border: none;
+      padding: 14px 18px;
+      border-radius: var(--radius-pill);
+      color: var(--color-surface);
+      font-weight: 700;
+      font-size: var(--font-size-md);
+      letter-spacing: 0.5px;
+      width: 100%;
+      margin-top: var(--space-3);
+      cursor: pointer;
+      transition: var(--transition-base);
+      box-shadow: var(--shadow-primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-light);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97);
+      background: var(--color-primary-light);
+    }
+
+    /* ============================================================
+       RESULTADOS
+       ============================================================ */
+    .result-area {
+      background: var(--color-surface);
+      border-radius: 28px;
+      padding: var(--space-3) var(--space-2);
+      margin-top: var(--space-2);
+      min-height: 80px;
+      border: 1px solid var(--color-border);
+    }
+
+    .bulb-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 10px;
+      padding: var(--space-2) var(--space-1);
+    }
+
+    .bulb-tag {
+      background: #e6edf6;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--color-primary);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+      border: 1px solid #cddbe9;
+      transition: var(--transition-fast);
+    }
+
+    .bulb-tag.hella {
+      background: var(--color-accent);
+      border-color: var(--color-accent-dark);
+      color: #1d2f3f;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      color: var(--color-text-muted);
+      text-align: center;
+      padding: 28px 10px;
+      font-size: 15px;
+      font-weight: 400;
+    }
+
+    /* ============================================================
+       MODAL DE ADMINISTRACIÓN (acceso secreto)
+       ============================================================ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 31, 54, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      z-index: var(--z-overlay);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--transition-base), visibility var(--transition-base);
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 420px;
+      padding: var(--space-6);
+      transform: translateY(24px) scale(0.96);
+      opacity: 0;
+      transition: transform var(--transition-base), opacity var(--transition-base);
+    }
+
+    .modal-overlay.open .modal {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-5);
+    }
+
+    .modal-title {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background: var(--color-surface-alt);
+      color: var(--color-text);
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .modal-body input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      font-size: 15px;
+      transition: var(--transition-fast);
+    }
+
+    .modal-body input:focus {
+      outline: 2px solid var(--color-primary-light);
+      border-color: transparent;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: var(--space-2);
+    }
+
+    .btn-secondary {
+      background: #445f7a;
+      border: none;
+      padding: 12px 18px;
+      border-radius: var(--radius-pill);
+      color: var(--color-surface);
+      font-weight: 600;
+      flex: 1;
+      min-width: 100px;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-secondary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-secondary:active {
+      opacity: 0.7;
+      transform: scale(0.96);
+    }
+
+    .btn-danger {
+      background: var(--color-danger);
+    }
+
+    .status-msg {
+      font-size: var(--font-size-sm);
+      color: var(--color-success);
+      margin-top: var(--space-2);
+      padding: 6px 12px;
+      background: var(--color-success-bg);
+      border-radius: var(--radius-pill);
+      display: inline-block;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: var(--space-5);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-faint);
+      letter-spacing: 0.3px;
+    }
+
+    /* ============================================================
+       ADAPTACIÓN RESPONSIVA
+       ============================================================ */
+    @media (max-width: 420px) {
+      .app-card { padding: var(--space-4); }
+      .logo-text { font-size: 15px; }
+      .modal { padding: var(--space-5); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-card" id="app">
+    <!-- HEADER con logo (acceso secreto: 5 clicks, sin pistas) -->
+    <div class="header" id="headerLogo">
+      <div class="logo-placeholder">
+        <div class="logo-icon">H</div>
+        <div class="logo-text">HELLA <span>· bulbs</span></div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-section">
+      <div class="filter-group">
+        <div class="filter-row">
+          <label>Armadora</label>
+          <input type="text" id="inputMake" placeholder="ej. Toyota, Ford" value="Toyota">
+        </div>
+        <div class="filter-row">
+          <label>Modelo</label>
+          <input type="text" id="inputModel" placeholder="ej. Corolla, F-150" value="Corolla">
+        </div>
+        <div class="filter-row">
+          <label>Año</label>
+          <input type="text" id="inputYear" placeholder="ej. 2020" value="2020">
+        </div>
+        <button class="btn-primary" id="filterBtn">🔍 Filtrar focos</button>
+      </div>
+    </div>
+
+    <!-- Resultados -->
+    <div class="result-area" id="resultArea">
+      <div class="empty-state" id="emptyState">🔎 Los focos Hella aparecerán aquí</div>
+      <div class="bulb-grid" id="bulbGrid"></div>
+    </div>
+
+    <div class="footer-note">Hella · compatible con PWA</div>
+  </div>
+
+  <!-- Modal de administración (acceso secreto) -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+      <div class="modal-header">
+        <div class="modal-title" id="adminTitle">⚙️ Administración</div>
+        <button class="modal-close" id="closeModalBtn" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="email" id="adminEmail" placeholder="correo@ejemplo.com" value="admin@hella.com">
+        <input type="password" id="adminPass" placeholder="contraseña" value="hella123">
+        <div class="modal-actions">
+          <button class="btn-secondary" id="loadDataBtn">📥 Cargar datos</button>
+          <button class="btn-secondary btn-danger" id="clearDataBtn">🗑️ Limpiar</button>
+        </div>
+        <div id="adminStatus" class="status-msg">Esperando acción...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // ---------- CONFIGURACIÓN FIREBASE ----------
+      const firebaseConfig = {
+        apiKey: "AIzaSyDummyKeyNoUsarEnProduccion",  // Reemplazar con credenciales reales
+        authDomain: "tu-proyecto.firebaseapp.com",
+        projectId: "tu-proyecto-id",
+        storageBucket: "tu-proyecto.appspot.com",
+        messagingSenderId: "123456789",
+        appId: "1:123456789:web:abcdef"
+      };
+
+      // Inicializar Firebase (si no está ya)
+      let app, db;
+      try {
+        app = firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore(app);
+        console.log('Firebase inicializado');
+      } catch (e) {
+        console.warn('Firebase init error (usando mock):', e);
+        db = null;
+      }
+
+      // ---------- ELEMENTOS DOM ----------
+      const inputMake = document.getElementById('inputMake');
+      const inputModel = document.getElementById('inputModel');
+      const inputYear = document.getElementById('inputYear');
+      const filterBtn = document.getElementById('filterBtn');
+      const bulbGrid = document.getElementById('bulbGrid');
+      const emptyState = document.getElementById('emptyState');
+      const headerLogo = document.getElementById('headerLogo');
+      const adminModal = document.getElementById('adminModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const adminEmail = document.getElementById('adminEmail');
+      const adminPass = document.getElementById('adminPass');
+      const loadDataBtn = document.getElementById('loadDataBtn');
+      const clearDataBtn = document.getElementById('clearDataBtn');
+      const adminStatus = document.getElementById('adminStatus');
+
+      // ---------- ESTADO ----------
+      let clickCount = 0;
+      let lastClickTime = 0;
+      let localBulbs = [];
+
+      // ---------- DATOS DE EJEMPLO (Hella bulbs) ----------
+      const DEFAULT_BULBS = [
+        { make: 'Toyota', model: 'Corolla', year: '2020', bulbs: ['Luz baja', 'Luz alta', 'Direccional delantera', 'Cuartos delanteros'] },
+        { make: 'Toyota', model: 'Corolla', year: '2021', bulbs: ['Luz baja', 'Luz alta', 'Direccional delantera', 'Cuartos traseros'] },
+        { make: 'Ford', model: 'F-150', year: '2019', bulbs: ['Luz baja', 'Luz alta', 'Antiniebla', 'Direccional trasera', 'Freno'] },
+        { make: 'Ford', model: 'F-150', year: '2020', bulbs: ['Luz alta', 'Antiniebla', 'Cuartos delanteros', 'Reversa', 'Placa'] },
+        { make: 'Chevrolet', model: 'Silverado', year: '2018', bulbs: ['Luz baja', 'Luz alta', 'Direccional delantera', 'Direccional trasera', 'Cuartos traseros', 'Freno'] },
+        { make: 'Chevrolet', model: 'Silverado', year: '2019', bulbs: ['Luz baja', 'Antiniebla', 'Direccional delantera', 'Reversa', 'Domo'] },
+        { make: 'Honda', model: 'Civic', year: '2022', bulbs: ['Luz baja', 'Luz alta', 'Direccional delantera', 'Cuartos delanteros', 'Freno', 'Reversa'] },
+        { make: 'Volkswagen', model: 'Jetta', year: '2020', bulbs: ['Luz baja', 'Luz alta', 'Direccional trasera', 'Cuartos traseros', 'Placa', 'Domo'] },
+        { make: 'Nissan', model: 'Sentra', year: '2021', bulbs: ['Luz baja', 'Luz alta', 'Antiniebla', 'Direccional delantera', 'Reversa'] },
+        { make: 'Hyundai', model: 'Elantra', year: '2022', bulbs: ['Luz baja', 'Luz alta', 'Direccional trasera', 'Cuartos traseros', 'Freno', 'Placa'] },
+      ];
+
+      // ---------- FUNCIONES DE BASE DE DATOS (Firestore) ----------
+      function loadFromFirestore() {
+        if (!db) {
+          localBulbs = [...DEFAULT_BULBS];
+          renderBulbs(localBulbs);
+          adminStatus.textContent = '⚠️ Modo offline (datos de ejemplo)';
+          return Promise.resolve();
+        }
+        return db.collection('hellaBulbs').get()
+          .then(snapshot => {
+            if (snapshot.empty) {
+              localBulbs = [...DEFAULT_BULBS];
+              adminStatus.textContent = '📂 Base vacía, cargando ejemplo local';
+              renderBulbs(localBulbs);
+              return;
+            }
+            const docs = [];
+            snapshot.forEach(doc => docs.push(doc.data()));
+            localBulbs = docs.length ? docs : [...DEFAULT_BULBS];
+            renderBulbs(localBulbs);
+            adminStatus.textContent = `✅ ${localBulbs.length} registros cargados desde Firebase`;
+          })
+          .catch(err => {
+            console.warn('Error Firestore:', err);
+            localBulbs = [...DEFAULT_BULBS];
+            renderBulbs(localBulbs);
+            adminStatus.textContent = '⚠️ Error de conexión, usando datos locales';
+          });
+      }
+
+      // Guardar en Firebase (sobrescribe)
+      function saveToFirestore(dataArray) {
+        if (!db) {
+          adminStatus.textContent = '⚠️ Sin conexión a Firebase, solo local';
+          localBulbs = dataArray;
+          renderBulbs(localBulbs);
+          return Promise.resolve();
+        }
+        return db.collection('hellaBulbs').get()
+          .then(snapshot => {
+            const batch = db.batch();
+            snapshot.forEach(doc => batch.delete(doc.ref));
+            return batch.commit();
+          })
+          .then(() => {
+            const batch = db.batch();
+            dataArray.forEach(item => {
+              const ref = db.collection('hellaBulbs').doc();
+              batch.set(ref, item);
+            });
+            return batch.commit();
+          })
+          .then(() => {
+            localBulbs = dataArray;
+            renderBulbs(localBulbs);
+            adminStatus.textContent = `✅ ${dataArray.length} registros guardados en Firebase`;
+          })
+          .catch(err => {
+            console.error('Error guardando:', err);
+            adminStatus.textContent = '❌ Error al guardar en Firebase';
+            localBulbs = dataArray;
+            renderBulbs(localBulbs);
+          });
+      }
+
+      // ---------- RENDER FILTRADO ----------
+      function renderBulbs(bulbsArray) {
+        const make = inputMake.value.trim().toLowerCase();
+        const model = inputModel.value.trim().toLowerCase();
+        const year = inputYear.value.trim();
+
+        const filtered = bulbsArray.filter(item => {
+          const matchMake = item.make?.toLowerCase().includes(make) || make === '';
+          const matchModel = item.model?.toLowerCase().includes(model) || model === '';
+          const matchYear = item.year?.toString().includes(year) || year === '';
+          return matchMake && matchModel && matchYear;
+        });
+
+        const order = ['Luz baja', 'Luz alta', 'Antiniebla', 'Cuartos delanteros', 'Direccional delantera', 'Direccional trasera', 'Cuartos traseros', 'Freno', 'Reversa', 'Placa', 'Domo'];
+        const bulbSet = new Set();
+        filtered.forEach(item => {
+          if (Array.isArray(item.bulbs)) {
+            item.bulbs.forEach(b => bulbSet.add(b));
+          }
+        });
+        const sorted = Array.from(bulbSet).sort((a, b) => {
+          const ia = order.indexOf(a);
+          const ib = order.indexOf(b);
+          return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+        });
+
+        bulbGrid.innerHTML = '';
+        emptyState.style.display = 'none';
+
+        if (sorted.length === 0) {
+          emptyState.style.display = 'block';
+          emptyState.textContent = '🚗 No se encontraron focos para este vehículo';
+          return;
+        }
+
+        sorted.forEach(bulb => {
+          const tag = document.createElement('span');
+          tag.className = 'bulb-tag hella';
+          tag.textContent = bulb;
+          bulbGrid.appendChild(tag);
+        });
+      }
+
+      function applyFilter() {
+        renderBulbs(localBulbs);
+      }
+
+      // ---------- MODAL: ABRIR / CERRAR ----------
+      function openAdminModal() {
+        adminModal.classList.add('open');
+        adminStatus.textContent = '🔐 Ingresa credenciales y carga/limpia';
+        setTimeout(() => adminEmail.focus(), 250);
+      }
+
+      function closeAdminModal() {
+        adminModal.classList.remove('open');
+        clickCount = 0;
+      }
+
+      // ---------- ADMIN: 5 CLICKS EN LOGO (acceso secreto) ----------
+      headerLogo.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const now = Date.now();
+        if (now - lastClickTime > 2000) clickCount = 0;
+        clickCount++;
+        lastClickTime = now;
+        if (clickCount >= 5) {
+          clickCount = 0;
+          openAdminModal();
+        }
+      });
+
+      // Cerrar modal
+      closeModalBtn.addEventListener('click', closeAdminModal);
+
+      // Cerrar al hacer clic fuera del modal
+      adminModal.addEventListener('click', function(e) {
+        if (e.target === adminModal) closeAdminModal();
+      });
+
+      // Cerrar con tecla Escape
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && adminModal.classList.contains('open')) {
+          closeAdminModal();
+        }
+      });
+
+      // ---------- BOTONES ADMIN ----------
+      loadDataBtn.addEventListener('click', function() {
+        const email = adminEmail.value.trim();
+        const pass = adminPass.value.trim();
+        if (email === '' || pass === '') {
+          adminStatus.textContent = '⚠️ Correo y contraseña requeridos';
+          return;
+        }
+        if (email === 'admin@hella.com' && pass === 'hella123') {
+          adminStatus.textContent = '⏳ Cargando datos...';
+          loadFromFirestore();
+        } else {
+          adminStatus.textContent = '❌ Credenciales incorrectas';
+        }
+      });
+
+      clearDataBtn.addEventListener('click', function() {
+        const email = adminEmail.value.trim();
+        const pass = adminPass.value.trim();
+        if (email !== 'admin@hella.com' || pass !== 'hella123') {
+          adminStatus.textContent = '❌ Autenticación fallida';
+          return;
+        }
+        if (confirm('¿Eliminar todos los datos locales? (Firebase también se limpiará)')) {
+          if (db) {
+            db.collection('hellaBulbs').get()
+              .then(snapshot => {
+                const batch = db.batch();
+                snapshot.forEach(doc => batch.delete(doc.ref));
+                return batch.commit();
+              })
+              .then(() => {
+                localBulbs = [];
+                renderBulbs(localBulbs);
+                adminStatus.textContent = '🗑️ Datos eliminados de Firebase y local';
+              })
+              .catch(err => {
+                console.error(err);
+                adminStatus.textContent = '❌ Error al limpiar';
+              });
+          } else {
+            localBulbs = [];
+            renderBulbs(localBulbs);
+            adminStatus.textContent = '🗑️ Datos locales eliminados';
+          }
+        }
+      });
+
+      // ---------- EVENTOS ----------
+      filterBtn.addEventListener('click', applyFilter);
+
+      [inputMake, inputModel, inputYear].forEach(inp => {
+        inp.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') applyFilter();
+        });
+      });
+
+      // ---------- INICIO: cargar datos por defecto ----------
+      if (db) {
+        loadFromFirestore().then(() => {
+          if (localBulbs.length === 0) {
+            localBulbs = [...DEFAULT_BULBS];
+            renderBulbs(localBulbs);
+          }
+        });
+      } else {
+        localBulbs = [...DEFAULT_BULBS];
+        renderBulbs(localBulbs);
+        adminStatus.textContent = '📦 Modo local (sin Firebase)';
+      }
+
+      setTimeout(applyFilter, 100);
+
+      if ('serviceWorker' in navigator) {
+        console.log('PWA ready');
+      }
+
+    })();
+  </script>
+</body>
+</html>
