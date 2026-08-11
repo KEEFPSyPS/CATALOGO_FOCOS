@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hella Bulb Finder · PWA</title>
+  <title>Hella Catalogo</title>
   <!-- PWA manifest & theme -->
   <link rel="manifest" href="data:application/json,{}" />
   <meta name="theme-color" content="#0b2b4a">
@@ -89,7 +89,7 @@
     }
 
     /* ============================================================
-       APP CARD
+       APP CARD (vista principal y panel admin)
        ============================================================ */
     .app-card {
       max-width: 500px;
@@ -119,38 +119,22 @@
     }
 
     .logo-placeholder {
-      background: var(--color-primary);
-      border-radius: 60px;
-      padding: 6px 18px 6px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .logo-icon {
-      background: var(--color-accent);
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
+      background: var(--color-surface);
+      border-radius: 24px;
+      padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
-      font-size: 22px;
-      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
     }
 
-    .logo-text {
-      color: var(--color-surface);
-      font-weight: 600;
-      font-size: var(--font-size-lg);
-      letter-spacing: 0.5px;
-    }
-
-    .logo-text span {
-      font-weight: 300;
-      opacity: 0.8;
+    .logo-img {
+      display: block;
+      width: 84px;
+      height: 84px;
+      object-fit: contain;
+      pointer-events: none;
     }
 
     /* ============================================================
@@ -275,7 +259,7 @@
     }
 
     /* ============================================================
-       MODAL DE ADMINISTRACIÓN (acceso secreto)
+       MODAL DE LOGIN (acceso secreto)
        ============================================================ */
     .modal-overlay {
       position: fixed;
@@ -372,38 +356,28 @@
       border-color: transparent;
     }
 
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: var(--space-2);
-    }
-
-    .btn-secondary {
-      background: #445f7a;
+    .btn-login {
+      background: var(--color-primary);
       border: none;
-      padding: 12px 18px;
+      padding: 14px 18px;
       border-radius: var(--radius-pill);
       color: var(--color-surface);
-      font-weight: 600;
-      flex: 1;
-      min-width: 100px;
+      font-weight: 700;
+      font-size: var(--font-size-md);
+      letter-spacing: 0.5px;
+      width: 100%;
+      margin-top: var(--space-2);
       cursor: pointer;
-      transition: var(--transition-fast);
-      box-shadow: var(--shadow-sm);
+      transition: var(--transition-base);
+      box-shadow: var(--shadow-primary);
     }
 
-    .btn-secondary:hover {
-      filter: brightness(1.1);
+    .btn-login:hover {
+      background: var(--color-primary-light);
     }
 
-    .btn-secondary:active {
-      opacity: 0.7;
-      transform: scale(0.96);
-    }
-
-    .btn-danger {
-      background: var(--color-danger);
+    .btn-login:active {
+      transform: scale(0.97);
     }
 
     .status-msg {
@@ -414,6 +388,255 @@
       background: var(--color-success-bg);
       border-radius: var(--radius-pill);
       display: inline-block;
+    }
+
+    .status-msg.error {
+      color: var(--color-danger);
+      background: #fbe9e9;
+    }
+
+    /* ============================================================
+       PANEL DE ADMINISTRACIÓN (vista completa, no modal)
+       ============================================================ */
+    .admin-panel {
+      display: none;
+      max-width: 500px;
+      width: 100%;
+      background: var(--color-surface);
+      border-radius: 40px 40px 32px 32px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      padding: var(--space-6) var(--space-5) var(--space-8);
+    }
+
+    .admin-panel.active {
+      display: block;
+    }
+
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-5);
+    }
+
+    .admin-header h2 {
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .btn-back {
+      background: transparent;
+      border: 1px solid var(--color-border);
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      color: var(--color-text);
+      font-weight: 600;
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .btn-back:hover {
+      background: var(--color-surface-alt);
+    }
+
+    .admin-form {
+      background: var(--color-surface-alt);
+      border-radius: 24px;
+      padding: var(--space-5) var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+
+    .admin-form h3 {
+      font-size: var(--font-size-md);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-4);
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: var(--space-3);
+    }
+
+    .form-row label {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .form-row input {
+      padding: 12px 14px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      font-size: 15px;
+      transition: var(--transition-fast);
+    }
+
+    .form-row input:focus {
+      outline: 2px solid var(--color-primary-light);
+      border-color: transparent;
+    }
+
+    .form-row textarea {
+      padding: 12px 14px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      font-size: 15px;
+      min-height: 80px;
+      resize: vertical;
+      transition: var(--transition-fast);
+    }
+
+    .form-row textarea:focus {
+      outline: 2px solid var(--color-primary-light);
+      border-color: transparent;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: var(--space-2);
+    }
+
+    .btn-save {
+      background: var(--color-primary);
+      border: none;
+      padding: 12px 18px;
+      border-radius: var(--radius-pill);
+      color: var(--color-surface);
+      font-weight: 600;
+      flex: 1;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-save:hover {
+      background: var(--color-primary-light);
+    }
+
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid var(--color-border);
+      padding: 12px 18px;
+      border-radius: var(--radius-pill);
+      color: var(--color-text-muted);
+      font-weight: 600;
+      flex: 1;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .btn-cancel:hover {
+      background: var(--color-surface-alt);
+    }
+
+    .btn-delete {
+      background: var(--color-danger);
+      border: none;
+      padding: 12px 18px;
+      border-radius: var(--radius-pill);
+      color: var(--color-surface);
+      font-weight: 600;
+      flex: 1;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .btn-delete:hover {
+      filter: brightness(1.1);
+    }
+
+    .inventory-list {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 24px;
+      padding: var(--space-3);
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .inventory-list h3 {
+      font-size: var(--font-size-md);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-3);
+      padding: 0 var(--space-2);
+    }
+
+    .inventory-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      transition: var(--transition-fast);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .inventory-item:last-child {
+      border-bottom: none;
+    }
+
+    .inventory-item:hover {
+      background: var(--color-surface-alt);
+    }
+
+    .inventory-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .inventory-info strong {
+      display: block;
+      font-size: 15px;
+      color: var(--color-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .inventory-info span {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+    }
+
+    .inventory-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .icon-btn:hover {
+      background: var(--color-surface-alt);
+    }
+
+    .icon-btn.edit:hover {
+      color: var(--color-primary-light);
+    }
+
+    .icon-btn.delete:hover {
+      color: var(--color-danger);
     }
 
     .footer-note {
@@ -428,19 +651,19 @@
        ADAPTACIÓN RESPONSIVA
        ============================================================ */
     @media (max-width: 420px) {
-      .app-card { padding: var(--space-4); }
+      .app-card, .admin-panel { padding: var(--space-4); }
       .logo-text { font-size: 15px; }
       .modal { padding: var(--space-5); }
     }
   </style>
 </head>
 <body>
+  <!-- ============ VISTA PRINCIPAL ============ -->
   <div class="app-card" id="app">
     <!-- HEADER con logo (acceso secreto: 5 clicks, sin pistas) -->
     <div class="header" id="headerLogo">
       <div class="logo-placeholder">
-        <div class="logo-icon">H</div>
-        <div class="logo-text">HELLA <span>· bulbs</span></div>
+        <img src="img/Logo_HEPA.png" alt="HEPA logo" class="logo-img">
       </div>
     </div>
 
@@ -472,21 +695,58 @@
     <div class="footer-note">Hella · compatible con PWA</div>
   </div>
 
-  <!-- Modal de administración (acceso secreto) -->
-  <div class="modal-overlay" id="adminModal">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+  <!-- ============ PANEL DE ADMINISTRACIÓN (vista completa) ============ -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-header">
+      <h2>⚙️ Panel de administración</h2>
+      <button class="btn-back" id="backBtn">← Volver</button>
+    </div>
+
+    <!-- Formulario para agregar/editar -->
+    <div class="admin-form">
+      <h3 id="formTitle">➕ Agregar nuevo registro</h3>
+      <div class="form-row">
+        <label for="invMake">Armadora</label>
+        <input type="text" id="invMake" placeholder="ej. Toyota">
+      </div>
+      <div class="form-row">
+        <label for="invModel">Modelo</label>
+        <input type="text" id="invModel" placeholder="ej. Corolla">
+      </div>
+      <div class="form-row">
+        <label for="invYear">Año</label>
+        <input type="text" id="invYear" placeholder="ej. 2020">
+      </div>
+      <div class="form-row">
+        <label for="invBulbs">Focos (separados por coma)</label>
+        <textarea id="invBulbs" placeholder="Luz baja, Luz alta, Antiniebla"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-save" id="saveBtn">💾 Guardar</button>
+        <button class="btn-cancel" id="cancelBtn">Cancelar</button>
+      </div>
+      <div id="adminStatus" class="status-msg">Listo para administrar inventario</div>
+    </div>
+
+    <!-- Lista de inventario -->
+    <div class="inventory-list">
+      <h3>📦 Inventario actual</h3>
+      <div id="inventoryItems"></div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL DE LOGIN (acceso secreto) ============ -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
       <div class="modal-header">
-        <div class="modal-title" id="adminTitle">⚙️ Administración</div>
+        <div class="modal-title" id="loginTitle">🔐 Acceso</div>
         <button class="modal-close" id="closeModalBtn" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body">
         <input type="email" id="adminEmail" placeholder="correo@ejemplo.com" value="admin@hella.com">
         <input type="password" id="adminPass" placeholder="contraseña" value="hella123">
-        <div class="modal-actions">
-          <button class="btn-secondary" id="loadDataBtn">📥 Cargar datos</button>
-          <button class="btn-secondary btn-danger" id="clearDataBtn">🗑️ Limpiar</button>
-        </div>
-        <div id="adminStatus" class="status-msg">Esperando acción...</div>
+        <button class="btn-login" id="loginBtn">Ingresar</button>
+        <div id="loginStatus" class="status-msg">Ingresa tus credenciales</div>
       </div>
     </div>
   </div>
@@ -516,7 +776,7 @@
         db = null;
       }
 
-      // ---------- ELEMENTOS DOM ----------
+      // ---------- ELEMENTOS DOM (vista principal) ----------
       const inputMake = document.getElementById('inputMake');
       const inputModel = document.getElementById('inputModel');
       const inputYear = document.getElementById('inputYear');
@@ -524,18 +784,34 @@
       const bulbGrid = document.getElementById('bulbGrid');
       const emptyState = document.getElementById('emptyState');
       const headerLogo = document.getElementById('headerLogo');
-      const adminModal = document.getElementById('adminModal');
+      const appCard = document.getElementById('app');
+
+      // ---------- ELEMENTOS DOM (login modal) ----------
+      const loginModal = document.getElementById('loginModal');
       const closeModalBtn = document.getElementById('closeModalBtn');
       const adminEmail = document.getElementById('adminEmail');
       const adminPass = document.getElementById('adminPass');
-      const loadDataBtn = document.getElementById('loadDataBtn');
-      const clearDataBtn = document.getElementById('clearDataBtn');
+      const loginBtn = document.getElementById('loginBtn');
+      const loginStatus = document.getElementById('loginStatus');
+
+      // ---------- ELEMENTOS DOM (panel admin) ----------
+      const adminPanel = document.getElementById('adminPanel');
+      const backBtn = document.getElementById('backBtn');
+      const formTitle = document.getElementById('formTitle');
+      const invMake = document.getElementById('invMake');
+      const invModel = document.getElementById('invModel');
+      const invYear = document.getElementById('invYear');
+      const invBulbs = document.getElementById('invBulbs');
+      const saveBtn = document.getElementById('saveBtn');
+      const cancelBtn = document.getElementById('cancelBtn');
       const adminStatus = document.getElementById('adminStatus');
+      const inventoryItems = document.getElementById('inventoryItems');
 
       // ---------- ESTADO ----------
       let clickCount = 0;
       let lastClickTime = 0;
       let localBulbs = [];
+      let editingId = null; // ID del registro en edición
 
       // ---------- DATOS DE EJEMPLO (Hella bulbs) ----------
       const DEFAULT_BULBS = [
@@ -556,67 +832,109 @@
         if (!db) {
           localBulbs = [...DEFAULT_BULBS];
           renderBulbs(localBulbs);
-          adminStatus.textContent = '⚠️ Modo offline (datos de ejemplo)';
+          renderInventory();
           return Promise.resolve();
         }
         return db.collection('hellaBulbs').get()
           .then(snapshot => {
             if (snapshot.empty) {
               localBulbs = [...DEFAULT_BULBS];
-              adminStatus.textContent = '📂 Base vacía, cargando ejemplo local';
               renderBulbs(localBulbs);
+              renderInventory();
               return;
             }
             const docs = [];
-            snapshot.forEach(doc => docs.push(doc.data()));
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              data._id = doc.id;
+              docs.push(data);
+            });
             localBulbs = docs.length ? docs : [...DEFAULT_BULBS];
             renderBulbs(localBulbs);
-            adminStatus.textContent = `✅ ${localBulbs.length} registros cargados desde Firebase`;
+            renderInventory();
           })
           .catch(err => {
             console.warn('Error Firestore:', err);
             localBulbs = [...DEFAULT_BULBS];
             renderBulbs(localBulbs);
-            adminStatus.textContent = '⚠️ Error de conexión, usando datos locales';
+            renderInventory();
           });
       }
 
-      // Guardar en Firebase (sobrescribe)
-      function saveToFirestore(dataArray) {
+      // Guardar un registro (agregar o actualizar)
+      function saveRecord(record) {
         if (!db) {
-          adminStatus.textContent = '⚠️ Sin conexión a Firebase, solo local';
-          localBulbs = dataArray;
+          // Modo offline: guardar localmente
+          if (editingId) {
+            const idx = localBulbs.findIndex(r => r._id === editingId);
+            if (idx !== -1) localBulbs[idx] = { ...record, _id: editingId };
+          } else {
+            record._id = 'local_' + Date.now();
+            localBulbs.push(record);
+          }
           renderBulbs(localBulbs);
+          renderInventory();
+          adminStatus.textContent = '✅ Guardado (modo local)';
           return Promise.resolve();
         }
-        return db.collection('hellaBulbs').get()
-          .then(snapshot => {
-            const batch = db.batch();
-            snapshot.forEach(doc => batch.delete(doc.ref));
-            return batch.commit();
-          })
-          .then(() => {
-            const batch = db.batch();
-            dataArray.forEach(item => {
-              const ref = db.collection('hellaBulbs').doc();
-              batch.set(ref, item);
+
+        const collection = db.collection('hellaBulbs');
+        if (editingId) {
+          // Actualizar registro existente
+          const { _id, ...data } = record;
+          return collection.doc(editingId).set(data)
+            .then(() => {
+              const idx = localBulbs.findIndex(r => r._id === editingId);
+              if (idx !== -1) localBulbs[idx] = { ...record, _id: editingId };
+              renderBulbs(localBulbs);
+              renderInventory();
+              adminStatus.textContent = '✅ Registro actualizado en Firebase';
+            })
+            .catch(err => {
+              console.error('Error actualizando:', err);
+              adminStatus.textContent = '❌ Error al actualizar';
             });
-            return batch.commit();
-          })
+        } else {
+          // Agregar nuevo registro
+          const { _id, ...data } = record;
+          return collection.add(data)
+            .then(docRef => {
+              record._id = docRef.id;
+              localBulbs.push(record);
+              renderBulbs(localBulbs);
+              renderInventory();
+              adminStatus.textContent = '✅ Registro agregado a Firebase';
+            })
+            .catch(err => {
+              console.error('Error agregando:', err);
+              adminStatus.textContent = '❌ Error al agregar';
+            });
+        }
+      }
+
+      // Eliminar un registro
+      function deleteRecord(id) {
+        if (!db) {
+          localBulbs = localBulbs.filter(r => r._id !== id);
+          renderBulbs(localBulbs);
+          renderInventory();
+          adminStatus.textContent = '🗑️ Eliminado (modo local)';
+          return Promise.resolve();
+        }
+        return db.collection('hellaBulbs').doc(id).delete()
           .then(() => {
-            localBulbs = dataArray;
+            localBulbs = localBulbs.filter(r => r._id !== id);
             renderBulbs(localBulbs);
-            adminStatus.textContent = `✅ ${dataArray.length} registros guardados en Firebase`;
+            renderInventory();
+            adminStatus.textContent = '🗑️ Registro eliminado de Firebase';
           })
           .catch(err => {
-            console.error('Error guardando:', err);
-            adminStatus.textContent = '❌ Error al guardar en Firebase';
-            localBulbs = dataArray;
-            renderBulbs(localBulbs);
+            console.error('Error eliminando:', err);
+            adminStatus.textContent = '❌ Error al eliminar';
           });
       }
 
-      // ---------- RENDER FILTRADO ----------
+      // ---------- RENDER FILTRADO (vista principal) ----------
       function renderBulbs(bulbsArray) {
         const make = inputMake.value.trim().toLowerCase();
         const model = inputModel.value.trim().toLowerCase();
@@ -663,16 +981,104 @@
         renderBulbs(localBulbs);
       }
 
-      // ---------- MODAL: ABRIR / CERRAR ----------
-      function openAdminModal() {
-        adminModal.classList.add('open');
-        adminStatus.textContent = '🔐 Ingresa credenciales y carga/limpia';
+      // ---------- RENDER INVENTARIO (panel admin) ----------
+      function renderInventory() {
+        if (!inventoryItems) return;
+        inventoryItems.innerHTML = '';
+
+        if (localBulbs.length === 0) {
+          inventoryItems.innerHTML = '<div class="empty-state">No hay registros en el inventario</div>';
+          return;
+        }
+
+        localBulbs.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'inventory-item';
+
+          const info = document.createElement('div');
+          info.className = 'inventory-info';
+          const strong = document.createElement('strong');
+          strong.textContent = `${item.make} ${item.model} ${item.year}`;
+          const span = document.createElement('span');
+          span.textContent = Array.isArray(item.bulbs) ? item.bulbs.join(', ') : '';
+          info.appendChild(strong);
+          info.appendChild(span);
+
+          const actions = document.createElement('div');
+          actions.className = 'inventory-actions';
+
+          const editBtn = document.createElement('button');
+          editBtn.className = 'icon-btn edit';
+          editBtn.textContent = '✏️';
+          editBtn.title = 'Editar';
+          editBtn.addEventListener('click', () => startEdit(item));
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'icon-btn delete';
+          delBtn.textContent = '🗑️';
+          delBtn.title = 'Eliminar';
+          delBtn.addEventListener('click', () => {
+            if (confirm(`¿Eliminar ${item.make} ${item.model} ${item.year}?`)) {
+              deleteRecord(item._id);
+            }
+          });
+
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+
+          div.appendChild(info);
+          div.appendChild(actions);
+          inventoryItems.appendChild(div);
+        });
+      }
+
+      // ---------- LOGIN: ABRIR / CERRAR MODAL ----------
+      function openLoginModal() {
+        loginModal.classList.add('open');
+        loginStatus.textContent = 'Ingresa tus credenciales';
+        loginStatus.className = 'status-msg';
         setTimeout(() => adminEmail.focus(), 250);
       }
 
-      function closeAdminModal() {
-        adminModal.classList.remove('open');
+      function closeLoginModal() {
+        loginModal.classList.remove('open');
         clickCount = 0;
+      }
+
+      // ---------- PANEL ADMIN: ABRIR / CERRAR ----------
+      function openAdminPanel() {
+        appCard.style.display = 'none';
+        adminPanel.classList.add('active');
+        renderInventory();
+      }
+
+      function closeAdminPanel() {
+        adminPanel.classList.remove('active');
+        appCard.style.display = '';
+        resetForm();
+      }
+
+      // ---------- FORMULARIO: RESET / EDITAR ----------
+      function resetForm() {
+        editingId = null;
+        formTitle.textContent = '➕ Agregar nuevo registro';
+        invMake.value = '';
+        invModel.value = '';
+        invYear.value = '';
+        invBulbs.value = '';
+        adminStatus.textContent = 'Listo para administrar inventario';
+        adminStatus.className = 'status-msg';
+      }
+
+      function startEdit(item) {
+        editingId = item._id;
+        formTitle.textContent = '✏️ Editar registro';
+        invMake.value = item.make || '';
+        invModel.value = item.model || '';
+        invYear.value = item.year || '';
+        invBulbs.value = Array.isArray(item.bulbs) ? item.bulbs.join(', ') : '';
+        adminStatus.textContent = 'Editando registro...';
+        adminStatus.className = 'status-msg';
       }
 
       // ---------- ADMIN: 5 CLICKS EN LOGO (acceso secreto) ----------
@@ -684,71 +1090,73 @@
         lastClickTime = now;
         if (clickCount >= 5) {
           clickCount = 0;
-          openAdminModal();
+          openLoginModal();
         }
       });
 
-      // Cerrar modal
-      closeModalBtn.addEventListener('click', closeAdminModal);
+      // Cerrar modal de login
+      closeModalBtn.addEventListener('click', closeLoginModal);
 
       // Cerrar al hacer clic fuera del modal
-      adminModal.addEventListener('click', function(e) {
-        if (e.target === adminModal) closeAdminModal();
+      loginModal.addEventListener('click', function(e) {
+        if (e.target === loginModal) closeLoginModal();
       });
 
       // Cerrar con tecla Escape
       document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && adminModal.classList.contains('open')) {
-          closeAdminModal();
+        if (e.key === 'Escape' && loginModal.classList.contains('open')) {
+          closeLoginModal();
         }
       });
 
-      // ---------- BOTONES ADMIN ----------
-      loadDataBtn.addEventListener('click', function() {
+      // ---------- LOGIN: VERIFICAR CREDENCIALES ----------
+      loginBtn.addEventListener('click', function() {
         const email = adminEmail.value.trim();
         const pass = adminPass.value.trim();
         if (email === '' || pass === '') {
-          adminStatus.textContent = '⚠️ Correo y contraseña requeridos';
+          loginStatus.textContent = '⚠️ Correo y contraseña requeridos';
+          loginStatus.className = 'status-msg error';
           return;
         }
         if (email === 'admin@hella.com' && pass === 'hella123') {
-          adminStatus.textContent = '⏳ Cargando datos...';
-          loadFromFirestore();
+          loginStatus.textContent = '✅ Acceso concedido';
+          loginStatus.className = 'status-msg';
+          setTimeout(() => {
+            closeLoginModal();
+            openAdminPanel();
+          }, 400);
         } else {
-          adminStatus.textContent = '❌ Credenciales incorrectas';
+          loginStatus.textContent = '❌ Credenciales incorrectas';
+          loginStatus.className = 'status-msg error';
         }
       });
 
-      clearDataBtn.addEventListener('click', function() {
-        const email = adminEmail.value.trim();
-        const pass = adminPass.value.trim();
-        if (email !== 'admin@hella.com' || pass !== 'hella123') {
-          adminStatus.textContent = '❌ Autenticación fallida';
+      // ---------- PANEL ADMIN: BOTONES ----------
+      backBtn.addEventListener('click', closeAdminPanel);
+
+      cancelBtn.addEventListener('click', resetForm);
+
+      saveBtn.addEventListener('click', function() {
+        const make = invMake.value.trim();
+        const model = invModel.value.trim();
+        const year = invYear.value.trim();
+        const bulbsRaw = invBulbs.value.trim();
+
+        if (!make || !model || !year) {
+          adminStatus.textContent = '⚠️ Armadora, modelo y año son requeridos';
+          adminStatus.className = 'status-msg error';
           return;
         }
-        if (confirm('¿Eliminar todos los datos locales? (Firebase también se limpiará)')) {
-          if (db) {
-            db.collection('hellaBulbs').get()
-              .then(snapshot => {
-                const batch = db.batch();
-                snapshot.forEach(doc => batch.delete(doc.ref));
-                return batch.commit();
-              })
-              .then(() => {
-                localBulbs = [];
-                renderBulbs(localBulbs);
-                adminStatus.textContent = '🗑️ Datos eliminados de Firebase y local';
-              })
-              .catch(err => {
-                console.error(err);
-                adminStatus.textContent = '❌ Error al limpiar';
-              });
-          } else {
-            localBulbs = [];
-            renderBulbs(localBulbs);
-            adminStatus.textContent = '🗑️ Datos locales eliminados';
-          }
-        }
+
+        const bulbs = bulbsRaw
+          .split(',')
+          .map(b => b.trim())
+          .filter(b => b.length > 0);
+
+        const record = { make, model, year, bulbs };
+        saveRecord(record).then(() => {
+          resetForm();
+        });
       });
 
       // ---------- EVENTOS ----------
@@ -766,12 +1174,13 @@
           if (localBulbs.length === 0) {
             localBulbs = [...DEFAULT_BULBS];
             renderBulbs(localBulbs);
+            renderInventory();
           }
         });
       } else {
         localBulbs = [...DEFAULT_BULBS];
         renderBulbs(localBulbs);
-        adminStatus.textContent = '📦 Modo local (sin Firebase)';
+        renderInventory();
       }
 
       setTimeout(applyFilter, 100);
